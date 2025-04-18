@@ -1,0 +1,101 @@
+.all{
+  width: 1440px;
+  height: 1080px;
+  margin-left: 320px;
+  border-left: solid 1px #ccc;
+  border-right: solid 1px #ccc;
+  display: flex;
+  position: relative;
+  opacity: 10;
+
+  &_horizontally{
+    width: 100%;
+    border-top: solid 1px #42567A;
+    border-bottom: solid 1px #42567A;
+    position: absolute;
+    top: 480px;
+    opacity: 10%;
+  }
+
+  &_vertical{
+    height: 100%;
+    border-left: solid 1px #42567A;
+    border-right: solid 1px #42567A;
+    position: absolute;
+    left: 720px;
+    opacity: 10%;
+  }
+
+  &_circle{
+    position: absolute;
+    width: 530px;
+    height: 530px;
+    border-radius: 50%;
+    border: 1px solid #42567A;
+    top: 215px;
+    left: 455px;
+    opacity: 20%;
+  }
+}
+
+.pointWrapper {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  width: 56px;
+  height: 56px;
+}
+
+.pointDot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #42567A;
+}
+
+.date{
+  position: absolute;
+  left: 217px;
+  top: 400px;
+}
+
+.multicolor{
+  height: 120px;
+  border: 5px solid;
+  border-image: linear-gradient(to bottom, #3877EE, #EF5DA8) 1;
+  margin-top: 177px;
+}
+
+.header{
+  width: 353px;
+  height: 134px;
+  margin-top: 170px;
+  margin-left: 78px;
+
+  &_text{
+    font-family: "PT Sans", sans-serif;
+    font-weight: 700;
+    line-height: 120%;
+    font-size: 56px;
+    color: #42567A;
+  }
+}
+
+.event{
+  position: absolute;
+  top: 841px;
+  left: 20px;
+}
+
+.pagination{
+  position: absolute;
+  top: 697px;
+  left: 80px;
+}
