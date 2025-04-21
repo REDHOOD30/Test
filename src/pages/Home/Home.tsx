@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, { useRef, useState} from 'react';
+import gsap from 'gsap';
 import styles from "./home.module.scss";
 import {Time} from "../../components/Time/time";
 import {Date} from "../../components/Date/Date";
@@ -58,58 +59,197 @@ const dateList = {
 
 
 export const Home: React.FC = () => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [rotation, setRotation] = useState(0);
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-    const [activeIndex, setActiveIndex] = useState(3);
-    const centerX = 720;
-    const centerY = 480;
+    const circleRef = useRef<HTMLDivElement>(null);
+    const activePointRef = useRef<HTMLDivElement | null>(null);
+    const dateRef = useRef<HTMLDivElement | null>(null);
+    const eventsRef = useRef<HTMLDivElement | null>(null);
+    const hoverRefs = useRef<Array<HTMLDivElement | null>>([]);
+
     const radius = 265;
+    const fixedAngleDeg = 45;
 
     const dateArray = Object.values(dateList);
+    const anglePerPoint = 360 / dateArray.length;
     const activePoint = dateArray[activeIndex];
+
+
+
+    const handleClick = (newIndex: number) => {
+        if (newIndex === activeIndex) return;
+
+        const targetRotation = newIndex * anglePerPoint;
+
+        gsap.to(circleRef.current, {
+            rotate: -targetRotation,
+            duration: 0.5,
+            ease: "power2.inOut",
+            onStart: () => {
+                gsap.to(
+                    activePointRef.current, {
+                        duration: 0.5,
+                        ease: "power2.inOut",
+                        rotate: activeIndex * -90,
+                    });
+
+                hoverRefs.current.forEach((el) => {
+                        gsap.to(
+                            el, {
+                                duration: 0.5,
+                                ease: "power2.inOut",
+                                rotate: newIndex * 90,
+                            })
+                    }
+                )
+            },
+            onComplete: () => {
+                const tl = gsap.timeline({
+                    onComplete: () => {
+                        setRotation(-targetRotation);
+                        setActiveIndex(newIndex);
+
+                        if (dateRef.current) {
+                            gsap.fromTo(dateRef.current,
+                                {opacity: 0, y: -10},
+                                {opacity: 1, y: 0, duration: 0.5, ease: "power2.out"}
+                            );
+                        }
+
+                        if (eventsRef.current) {
+                            gsap.fromTo(eventsRef.current,
+                                {opacity: 0, y: -10},
+                                {opacity: 1, y: 0, duration: 0.5, ease: "power2.out"}
+                            );
+                        }
+
+                        // if (activePointRef.current) {
+                        //     gsap.fromTo(activePointRef.current,
+                        //         { scale: 0.5, opacity: 0 },
+                        //         { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out" }
+                        //     );
+                        // }
+
+
+                    if (dateRef.current) {
+                            tl.to(dateRef.current, {
+                                opacity: 0,
+                                y: -10,
+                                duration: 0.5,
+                                ease: "power2.in"
+                            }, 0);
+                        }
+
+                        if (eventsRef.current) {
+                            tl.to(eventsRef.current, {
+                                opacity: 0,
+                                y: -10,
+                                duration: 0.5,
+                                ease: "power2.in"
+                            }, 0);
+                        }
+                    }
+                })
+            }
+        });
+    };
 
     return (
         <div className={styles.main}>
             <div className={styles.all}>
-                <div className={styles.all_horizontally}/>
-                <div className={styles.all_vertical}/>
-                <div className={styles.all_circle}/>
-                <div className={styles.multicolor}/>
+                <div className={styles.all_horizontally} />
+                <div className={styles.all_vertical} />
+                <div className={styles.all_circle} />
+                <div className={styles.multicolor} />
                 <div className={styles.header}>
                     <span className={styles.header_text}>Исторические даты</span>
                 </div>
-                <div className={styles.date}>
+                <div className={styles.date} ref={dateRef}>
                     <Date startDate={activePoint.startDate} endDate={activePoint.endDate} />
                 </div>
                 <div className={styles.pagination}>
                     <Pagination
                         currentIndex={activeIndex}
                         total={dateArray.length}
-                        onPrev={() => setActiveIndex((prev) => Math.max(0, prev - 1))}
-                        onNext={() => setActiveIndex((prev) => Math.min(dateArray.length - 1, prev + 1))}
+                        onPrev={() => handleClick(Math.max(0, activeIndex - 1))}
+                        onNext={() => handleClick(Math.min(dateArray.length - 1, activeIndex + 1))}
                     />
                 </div>
-                <div className={styles.event}>
+                <div className={styles.event} ref={eventsRef}>
                     <Events events={activePoint.events} />
                 </div>
-               {Object.values(dateList).map((point, index) => {
-                        const baseAngle = Math.PI / 4;
-                        const angle = baseAngle + (index / dateArray.length) * 2 * Math.PI;
-                        const x = centerX + radius * Math.cos(angle);
-                        const y = centerY + radius * Math.sin(angle);
-                return (
-                <div
-                    key={index}
-                    className={styles.pointWrapper}
-                    style={{ left: `${x}px`, top: `${y}px` }}
-                    onClick={() => setActiveIndex(index)}
-                >
-                    {activeIndex === index ? (
-                        <Time number={point.number} label={point.label} />
-                    ) : (
-                        <div className={styles.pointDot} />
-                    )}
+
+                <div className={styles.circleWrapper}>
+                    <div
+                        className={styles.circlePoints}
+                        ref={circleRef}
+                        style={{ position: 'relative', transform: `rotate(${rotation}deg)` }}
+                    >
+                        {dateArray.map((point, index) => {
+                            const angle = index * anglePerPoint;
+                            const angleRad = (angle - fixedAngleDeg) * (Math.PI / 180);
+                            const x = radius * Math.cos(angleRad);
+                            const y = radius * Math.sin(angleRad);
+                            const isActive = index === activeIndex;
+
+                            return (
+                                <div
+                                    key={index}
+                                    className={styles.pointWrapper}
+                                    style={{
+                                        position: 'absolute',
+                                        left: `calc(50% + ${x}px)`,
+                                        top: `calc(50% + ${y}px)`,
+                                        transform: 'translate(-50%, -50%)',
+                                    }}
+                                    onClick={() => handleClick(index)}
+                                    // onMouseEnter={() => {
+                                    //     setHoveredIndex(index);
+                                    //     if (hoverRefs.current[index]) {
+                                    //         gsap.to(
+                                    //             hoverRefs.current[index],
+                                    //             { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out"}
+                                    //         );
+                                    //     }
+                                    // }}
+                                    // onMouseLeave={() => {
+                                    //     setHoveredIndex(null);
+                                    //     if (hoverRefs.current[index]) {
+                                    //         gsap.to(
+                                    //             hoverRefs.current[index],
+                                    //             { scale: 0.5, opacity: 0, duration: 0.5, ease: "power2.in"}
+                                    //         );
+                                    //     }
+                                    // }}
+                                >
+                                    {isActive ? (
+                                        <div
+                                            style={{ transform: `rotate(${-rotation}deg)` }}
+                                            ref={activePointRef}
+                                        >
+                                            <Time number={point.number} label={point.label} />
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className={styles.pointDot} />
+                                            <div
+                                                style={{
+                                                    position: 'absolute',
+                                                    //opacity: hoveredIndex === index ? 1 : 0,
+                                                }}
+                                                ref={(el) => { hoverRefs.current[index] = el; }}
+                                            >
+                                                <Time number={point.number} label={point.label} onlyNumber rotation={activeIndex * 90}/>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
                 </div>
-                )})}
             </div>
         </div>
     );

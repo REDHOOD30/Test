@@ -1,25 +1,20 @@
 .wrapper {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  position: relative;
-  width: 100%;
+  margin-left: 80px;
+  margin-right: 80px;
 }
 
 .all {
   display: flex;
   gap: 80px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
   width: 1200px;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+
+.slide {
+  width: 400px;
+  flex-shrink: 0;
 }
 
 .event {
-  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -45,45 +40,5 @@
     line-height: 30px;
     font-size: 20px;
     color: #42567A;
-  }
-}
-
-.scrollButtonBack {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background-color: #FFFFFF;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &_img{
-    transform: rotate(180deg);
-  }
-
-  &:hover {
-    background-color: #cccccc;
-  }
-}
-
-.scrollButtonNext {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  margin-left: 60px;
-  background-color: #FFFFFF;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-
-  &:hover {
-    background-color: #cccccc;
   }
 }
